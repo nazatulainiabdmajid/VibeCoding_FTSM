@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIM: Vibe Coding Module</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Plus+Jakarta+Sans:wght@500;700&display=swap');
+        
+        :root {
+            --md-sys-color-primary: #005ac1;
+            --md-sys-color-on-primary: #ffffff;
+            --md-sys-color-primary-container: #d8e2ff;
+            --md-sys-color-on-primary-container: #001a41;
+            --md-sys-color-surface: #f8fafd;
+            --md-sys-color-surface-variant: #e1e2ec;
+        }
+
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            background-color: var(--md-sys-color-surface); 
+            color: #1e293b;
+            scroll-behavior: smooth; 
+        }
+        
+        h1, h2, h3, h4, h5, .display-font { font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        .material-card {
+            background-color: white;
+            border-radius: 24px;
+            border: 1px solid var(--md-sys-color-surface-variant);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
+        }
+
+        .material-card-interactive:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: var(--md-sys-color-primary-container);
+        }
+
+        .prompt-box { 
+            background: #0f172a; color: #bae6fd; 
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace; 
+        }
+
+        details > summary { list-style: none; cursor: pointer; transition: color 0.3s ease; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] summary ~ * { animation: slideDown 0.3s ease-in-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        #toast { visibility: hidden; min-width: 250px; background-color: var(--md-sys-color-primary); color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 100; left: 50%; bottom: 30px; transform: translateX(-50%); font-weight: 600; opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+
+        /* Custom Scrollbar for Nav */
+        ::-webkit-scrollbar { height: 6px; width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="antialiased selection:bg-blue-200 selection:text-blue-900">
+
+    <!-- Progress Bar -->
+    <div class="fixed top-0 left-0 w-full h-1.5 z-[100] bg-slate-200">
+        <div id="progressBar" class="h-full bg-blue-600 w-0 transition-all duration-300 rounded-r-full shadow-[0_0_10px_rgba(0,90,193,0.5)]"></div>
+    </div>
+
+    <!-- Floating Action Button: Custom GEM -->
+    <a href="https://gemini.google.com/gem/1Bsona6PcaaiyslWTkf2earpV6fbGFFW6?usp=sharing" target="_blank" class="fixed bottom-6 right-6 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white p-4 md:px-6 rounded-full shadow-2xl hover:shadow-[0_0_20px_rgba(147,51,234,0.5)] hover:-translate-y-1 transition-all z-[100] flex items-center gap-3 font-bold group border-2 border-white/20">
+        <i class="fas fa-robot text-2xl group-hover:rotate-12 transition-transform"></i>
+        <span class="hidden md:flex flex-col items-start leading-tight">
+            <span class="text-[10px] text-purple-200 font-normal uppercase tracking-wider">Brainstorm Idea</span>
+            <span>Custom GEM AI</span>
+        </span>
+    </a>
+
+    <!-- Header / Branding -->
+    <nav class="bg-white border-b border-slate-200 py-3 sticky top-0 z-50 mt-1.5">
+        <div class="max-w-7xl mx-auto px-4 lg:px-6 flex justify-between items-center gap-4">
+            
+            <!-- Left: Logos -->
+            <div class="flex items-center gap-3 flex-shrink-0">
+                <img src="https://via.placeholder.com/150x50/005ac1/ffffff?text=UKM+Logo" alt="UKM Logo" class="h-8 md:h-10 w-auto object-contain">
+                <img src="https://via.placeholder.com/150x50/0f172a/ffffff?text=CAIT+Logo" alt="CAIT Logo" class="h-8 md:h-10 w-auto object-contain">
+            </div>
+
+            <!-- Center: Links (Scrollable on small screens) -->
+            <div class="flex-grow overflow-x-auto">
+                <div class="flex flex-nowrap items-center gap-1 text-xs md:text-sm font-semibold text-slate-600 w-max mx-auto md:ml-auto md:mr-0 px-2 pb-1">
+                    <a href="#structure" class="nav-link px-3 py-1.5 rounded-full hover:bg-slate-100 transition whitespace-nowrap" data-my="Modul">Modules</a>
+                    <a href="#module1" class="nav-link px-3 py-1.5 rounded-full hover:bg-slate-100 transition">M1</a>
+                    <a href="#module2" class="nav-link px-3 py-1.5 rounded-full hover:bg-slate-100 transition">M2</a>
+                    <a href="#module3" class="nav-link px-3 py-1.5 rounded-full hover:bg-slate-100 transition">M3</a>
+                    <a href="#module4" class="nav-link px-3 py-1.5 rounded-full hover:bg-slate-100 transition">M4</a>
+                    <a href="#module5" class="nav-link px-3 py-1.5 rounded-full hover:bg-slate-100 transition">M5</a>
+                    <a href="#bonus" class="nav-link px-3 py-1.5 rounded-full hover:bg-slate-100 transition" data-my="Bonus">Bonus</a>
+                    <a href="#faq" class="nav-link px-3 py-1.5 rounded-full hover:bg-slate-100 transition">FAQ</a>
+                </div>
+            </div>
+
+            <!-- Right: Language Toggle Button -->
+            <div class="flex items-center flex-shrink-0">
+                <button id="langToggle" onclick="toggleLanguage()" class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-full font-bold transition-all duration-200 border border-slate-300 shadow-sm text-sm">
+                    <span id="langText">BM</span>
+                </button>
+            </div>
+
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-6 pt-8 pb-24 space-y-12">
+
+        <!-- Hero Section (ODL Style) -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <div class="lg:col-span-2 space-y-6">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-800 text-xs font-bold uppercase tracking-wide">
+                    <i class="fas fa-laptop-code"></i> Self-Instructional Material (SIM)
+                </div>
+                <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight" data-my="Modul Vibe Coding:<br> <span class='text-blue-700'>Jadikan Idea Satu Realiti</span>">
+                    Vibe Coding Module:<br> <span class="text-blue-700">Turn Ideas into Reality</span>
+                </h2>
+                <p class="text-lg text-slate-600 leading-relaxed max-w-2xl" data-my="Pengenalan praktikal kepada pembangunan aplikasi AI. Perlukah kita menghabiskan berbulan-bulan belajar kod berat seperti Java atau HTML? Atau bolehkah kita hanya guna 'prompting' untuk jadikan idea satu realiti? <strong>Jawapannya YA, sangat boleh.</strong> Selamat datang ke Modul ini.">
+                    A practical introduction to AI-assisted mobile app development. Do we need to spend months learning heavy coding like Java or HTML? Or can we just use prompting to turn our ideas into reality? <strong>The answer is YES, it is possible.</strong> Welcome to the Module.
+                </p>
+            </div>
+            
+            <!-- At a Glance Card -->
+            <div class="material-card bg-blue-50/50 p-6 border-blue-100">
+                <h3 class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4" data-my="Sepintas Lalu">At a Glance</h3>
+                <ul class="space-y-4">
+                    <li class="flex items-start gap-3">
+                        <i class="far fa-clock text-blue-600 mt-1"></i>
+                        <div>
+                            <p class="font-bold text-slate-800" data-my="60 Minit Keseluruhan">60 Minutes Total</p>
+                            <p class="text-xs text-slate-500" data-my="Anggaran masa webinar">Estimated webinar duration</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fas fa-layer-group text-blue-600 mt-1"></i>
+                        <div>
+                            <p class="font-bold text-slate-800" data-my="5 Modul Utama">5 Core Modules</p>
+                            <p class="text-xs text-slate-500" data-my="Minda, Replit, Expo, Native, Terbitan">Mindset, Replit, Expo, Native, Publish</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fas fa-laptop-house text-blue-600 mt-1"></i>
+                        <div>
+                            <p class="font-bold text-slate-800" data-my="Mod Pembelajaran">Mode</p>
+                            <p class="text-xs text-slate-500" data-my="Interaktif Atas Talian / Kendiri">Interactive Online / Self-Paced</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Audience & ILOs -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Who is this for -->
+            <div class="material-card p-8">
+                <h3 class="text-lg font-bold text-slate-900 mb-6 display-font" data-my="Untuk siapakah modul ini?">Who is this module for?</h3>
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div class="flex flex-col items-center gap-2">
+                        <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 text-xl"><i class="fas fa-user-graduate"></i></div>
+                        <span class="text-xs font-semibold text-slate-700 leading-tight" data-my="Pelajar<br>(Sekolah, Poli, Uni)">Students<br>(School, Poly, Uni)</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-2">
+                        <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 text-xl"><i class="fas fa-chalkboard-teacher"></i></div>
+                        <span class="text-xs font-semibold text-slate-700" data-my="Pendidik &<br>Pensyarah">Educators &<br>Lecturers</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-2">
+                        <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 text-xl"><i class="fas fa-lightbulb"></i></div>
+                        <span class="text-xs font-semibold text-slate-700" data-my="Pemula yang<br>Ingin Tahu">Curious<br>Beginners</span>
+                    </div>
+                </div>
+                <div class="mt-6 bg-slate-50 p-3 rounded-lg border border-slate-100 text-center text-sm text-slate-600" data-my="<i class='fas fa-info-circle text-blue-500 mr-1'></i> Tiada asas pengaturcaraan (coding) diperlukan.">
+                    <i class="fas fa-info-circle text-blue-500 mr-1"></i> No prior coding background is required.
+                </div>
+            </div>
+
+            <!-- Learning Outcomes -->
+            <div class="material-card p-8 bg-blue-50/30">
+                <h3 class="text-lg font-bold text-slate-900 mb-6 display-font" data-my="Apa yang anda akan pelajari <span class='text-sm font-normal text-slate-500'>(Hasil Pembelajaran / LO)</span>">What you will learn <span class="text-sm font-normal text-slate-500">(Learning Outcomes / LO)</span></h3>
+                <ul class="space-y-4">
+                    <li class="flex items-start gap-4">
+                        <div class="bg-blue-700 text-white text-xs font-bold px-2 py-1 rounded mt-0.5 whitespace-nowrap flex-shrink-0">LO1</div>
+                        <p class="text-sm text-slate-700 leading-relaxed" data-my="Mendalami definisi Vibe Coding dan kerangka UX (Intent-Context-Quality) berserta kerangka B.A.S.I.C.">Internalize the definition of Vibe Coding and the UX framework (Intent-Context-Quality) alongside B.A.S.I.C.</p>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <div class="bg-blue-700 text-white text-xs font-bold px-2 py-1 rounded mt-0.5 whitespace-nowrap flex-shrink-0">LO2</div>
+                        <p class="text-sm text-slate-700 leading-relaxed" data-my="Menghasilkan visual aplikasi web (Web App) berimpak tinggi menggunakan <strong>Replit</strong> secara terus.">Produce high visual impact Web Apps and deploy directly using <strong>Replit</strong>.</p>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <div class="bg-blue-700 text-white text-xs font-bold px-2 py-1 rounded mt-0.5 whitespace-nowrap flex-shrink-0">LO3</div>
+                        <p class="text-sm text-slate-700 leading-relaxed" data-my="Membangun dan menguji prototaip aplikasi mudah বিলা (Mobile App) menggunakan <strong>Expo Snack</strong>.">Develop and test functional mobile app prototypes using <strong>Expo Snack</strong>.</p>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <div class="bg-blue-700 text-white text-xs font-bold px-2 py-1 rounded mt-0.5 whitespace-nowrap flex-shrink-0">LO4</div>
+                        <p class="text-sm text-slate-700 leading-relaxed" data-my="Menjana kod <strong>Android Studio</strong> native untuk integrasi sensor (Kamera, Notifikasi).">Generate native <strong>Android Studio</strong> code for hardware/sensor integration (Camera, Notifications).</p>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <div class="bg-blue-700 text-white text-xs font-bold px-2 py-1 rounded mt-0.5 whitespace-nowrap flex-shrink-0">LO5</div>
+                        <p class="text-sm text-slate-700 leading-relaxed" data-my="Menjana fail Application Package (<strong>APK</strong>) untuk perkongsian aplikasi.">Generate Application Package (<strong>APK</strong>) files for sharing and deployment.</p>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Module Structure Grid -->
+        <section id="structure" class="pt-8">
+            <h3 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2 display-font" data-my="<i class='fas fa-th-large text-slate-400'></i> Struktur Modul Penuh">
+                <i class="fas fa-th-large text-slate-400"></i> Full Module Structure
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+                <a href="#module1" class="material-card material-card-interactive p-4 flex flex-col h-full border-t-4 border-t-blue-500">
+                    <div class="text-xs font-bold text-blue-600 mb-2 uppercase tracking-wider" data-my="Modul 1">Module 1</div>
+                    <h4 class="font-bold text-sm text-slate-800 mb-2" data-my="Minda & Teori">The Mindset & Theory</h4>
+                    <p class="text-[11px] text-slate-600 mb-4 flex-grow" data-my="Falsafah Vibe Coding (Karpathy), ICQ & B.A.S.I.C.">Vibe Coding philosophy (Karpathy), ICQ UX layer & B.A.S.I.C.</p>
+                </a>
+                <a href="#module2" class="material-card material-card-interactive p-4 flex flex-col h-full border-t-4 border-t-orange-500">
+                    <div class="text-xs font-bold text-orange-600 mb-2 uppercase tracking-wider" data-my="Modul 2">Module 2</div>
+                    <h4 class="font-bold text-sm text-slate-800 mb-2" data-my="Web Visual (Replit)">Visual Web (Replit)</h4>
+                    <p class="text-[11px] text-slate-600 mb-4 flex-grow" data-my="Bina aplikasi pelancongan web visual dgn pantas.">Build visual web tourism app with immediate deployment.</p>
+                </a>
+                <a href="#module3" class="material-card material-card-interactive p-4 flex flex-col h-full border-t-4 border-t-cyan-500">
+                    <div class="text-xs font-bold text-cyan-600 mb-2 uppercase tracking-wider" data-my="Modul 3">Module 3</div>
+                    <h4 class="font-bold text-sm text-slate-800 mb-2" data-my="Prototaip (Expo)">Prototypes (Expo)</h4>
+                    <p class="text-[11px] text-slate-600 mb-4 flex-grow" data-my="Bina & betulkan logik aplikasi Resipi.">Build & correct app logic using React Native emulator.</p>
+                </a>
+                <a href="#module4" class="material-card material-card-interactive p-4 flex flex-col h-full border-t-4 border-t-indigo-500">
+                    <div class="text-xs font-bold text-indigo-600 mb-2 uppercase tracking-wider" data-my="Modul 4">Module 4</div>
+                    <h4 class="font-bold text-sm text-slate-800 mb-2" data-my="Kuasa Native">Native Power</h4>
+                    <p class="text-[11px] text-slate-600 mb-4 flex-grow" data-my="Beralih ke Android Studio untuk sensor Kamera.">Transition to Android Studio for deep hardware/camera ML.</p>
+                </a>
+                <a href="#module5" class="material-card material-card-interactive p-4 flex flex-col h-full border-t-4 border-t-emerald-500">
+                    <div class="text-xs font-bold text-emerald-600 mb-2 uppercase tracking-wider" data-my="Modul 5">Module 5</div>
+                    <h4 class="font-bold text-sm text-slate-800 mb-2" data-my="Terbitan (Publish)">Publishing</h4>
+                    <p class="text-[11px] text-slate-600 mb-4 flex-grow" data-my="Jana fail APK untuk Android & edaran awam.">Generating APKs and sharing your app globally.</p>
+                </a>
+            </div>
+        </section>
+
+        <hr class="border-slate-200 my-8">
+
+        <!-- MODULE 1 -->
+        <section id="module1" class="material-card p-8 md:p-10 scroll-mt-24 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -z-10"></div>
+            
+            <div class="mb-8">
+                <span class="text-sm font-bold text-blue-600 tracking-wider uppercase" data-my="Modul 1">Module 1</span>
+                <h3 class="text-3xl font-extrabold text-slate-900 mt-2 display-font" data-my="Asas Yang Betul & Minda Vibe Coding">The Right Foundation & Vibe Coding Mindset</h3>
+            </div>
+
+            <div class="bg-slate-50 border-l-4 border-blue-600 p-4 mb-8 rounded-r-lg">
+                <p class="text-sm font-semibold text-slate-800 mb-1" data-my="Objektif Modul:">Module Objective:</p>
+                <p class="text-sm text-slate-600" data-my="Memahami definisi Vibe Coding oleh pakar AI, kerangka reka bentuk UX (ICQ), dan kerangka teknikal (B.A.S.I.C) untuk komunikasi AI yang berkesan.">Understand the definition of Vibe Coding from an AI expert, the UX design framework (ICQ), and the technical framework (B.A.S.I.C) for effective AI communication.</p>
+            </div>
+
+            <!-- Karpathy Tweet Section -->
+            <h4 class="text-xl font-bold text-slate-800 mb-4" data-my="1.1 Apa itu 'Vibe Coding'?">1.1 What is 'Vibe Coding'?</h4>
+            
+            <div class="bg-blue-50/70 border-l-4 border-blue-400 p-5 rounded-r-xl mb-6 shadow-sm">
+                <p class="text-slate-700 leading-relaxed font-medium text-sm md:text-base" data-my="Menurut <strong>Kamus Merriam-Webster</strong>, <em>Vibe coding</em> (juga ditulis sebagai 'vibe-coding') adalah istilah baharu untuk amalan menulis kod, membina laman web, atau mencipta aplikasi <strong>hanya dengan memberitahu program AI apa yang anda mahukan</strong> dan membiarkannya mencipta produk tersebut untuk anda. Pengguna tidak perlu memahami bagaimana kod itu berfungsi, namun sering kali harus menerima kewujudan sejumlah pepijat (bugs) atau kerosakan kecil.">
+                    According to the <strong>Merriam-Webster Dictionary</strong>, <em>vibe coding</em> (also written as 'vibe-coding') is a recently coined term for the practice of writing code, making web pages, or creating apps <strong>simply by telling an AI program what you want</strong> and letting it create the product for you. In vibe coding, the user does not need to understand how or why the code works and must often accept that a certain number of bugs or glitches will be present.
+                </p>
+            </div>
+
+            <p class="text-slate-600 mb-6 leading-relaxed" data-my="Istilah ini dipopularkan oleh <strong>Andrej Karpathy</strong> (Penyelidik AI & Pengasas Bersama OpenAI) pada Februari 2025. Ia menerangkan satu aliran kerja di mana peranan utama pengguna berubah daripada <em>'menulis kod'</em> kepada <em>'membimbing AI'</em>.">
+                The term was popularized by <strong>Andrej Karpathy</strong> (AI Researcher & Co-founder of OpenAI) in February 2025. He describes a workflow in which the user’s primary role shifts from <em>'writing code'</em> to <em>'guiding an AI assistant'</em>.
+            </p>
+
+            <!-- Recreated Tweet Design -->
+            <div class="bg-[#0f1419] text-white p-6 rounded-2xl max-w-2xl mx-auto my-8 shadow-xl border border-slate-800">
+                <div class="flex items-center gap-3 mb-4">
+                    <img src="https://via.placeholder.com/150/ff9900/ffffff?text=AK" alt="Karpathy Profile" class="rounded-full w-12 h-12 object-cover border border-slate-600">
+                    <div>
+                        <p class="font-bold flex items-center gap-1">Andrej Karpathy <i class="fas fa-check-circle text-blue-400 text-sm"></i></p>
+                        <p class="text-slate-400 text-sm">@karpathy</p>
+                    </div>
+                </div>
+                <p class="text-[15px] leading-relaxed font-light mb-4" data-my="&quot;Terdapat sejenis pengekodan baharu yang saya panggil 'vibe coding', di mana anda sepenuhnya menyerah kepada 'vibes', menerima perkembangan pesat, dan lupa bahawa kod itu wujud... Saya sedang membina projek atau aplikasi web, tetapi ia bukanlah pengekodan sebenar—saya cuma lihat sesuatu, sebut sesuatu, jalankannya, salin dan tampal, dan kebanyakannya berfungsi.&quot;">
+                    "There’s a new kind of coding I call 'vibe coding', where you fully give in to the vibes, embrace exponentials, and forget that the code even exists... I’m building a project or webapp, but it’s not really coding—I just see stuff, say stuff, run stuff, and copy paste stuff, and it mostly works."
+                </p>
+                <div class="text-slate-500 text-sm border-t border-slate-800 pt-3 flex gap-4">
+                    <span>7:17 AM · Feb 3, 2025</span>
+                    <span>·</span>
+                    <a href="https://x.com/karpathy/status/1886192184808149383" target="_blank" class="text-blue-400 hover:underline">View Original Tweet</a>
+                </div>
+            </div>
+
+            <!-- Upload Placeholder 1 -->
+            <div class="bg-slate-100 rounded-xl p-4 text-center text-slate-500 mb-10 border-2 border-dashed border-slate-300">
+                <i class="fas fa-image text-3xl mb-2 text-slate-400"></i>
+                <p class="font-bold text-sm" data-my="Gantikan div ini dengan [Imej 2] (Sketch to App AI) dari dokumen anda.">Replace this div with [Image 2] (Sketch to App AI) from your document.</p>
+            </div>
+
+            <!-- ICQ Model Section -->
+            <h4 class="text-xl font-bold text-slate-800 mb-4" data-my="1.2 Lapis Panduan UX: Kerangka I.C.Q">1.2 UX Steering Layer: The I.C.Q Framework</h4>
+            <p class="text-slate-600 mb-6 leading-relaxed" data-my="Vibe Coding menjana artifak pantas. Namun kelajuan ini membawa risiko. Tanpa kerangka UX, hasilnya mungkin tidak relevan. Pakar UX menggunakan model <strong>Intent-Context-Quality (ICQ)</strong> untuk 'memandu' AI (Hohn & Loydl, 2026):">
+                Vibe Coding produces functional artifacts quickly. This speed introduces risk. Without a clear UX framework, the output might lack structure. UX professionals use the <strong>Intent-Context-Quality (ICQ)</strong> model as a steering layer (Hohn & Loydl, 2026):
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <h5 class="font-bold text-blue-700 mb-2 border-b pb-2"><i class="fas fa-bullseye mr-2"></i> Intent</h5>
+                    <p class="text-sm text-slate-600" data-my="<strong>Apa yang nak dicapai?</strong> Bukan hasil teknikal, tapi apa fungsinya untuk pengguna. Cth: Bukan 'Bina dashboard', tetapi 'Bina paparan status sistem semasa'."><strong>What is to be achieved?</strong> The professional objective for users, not technical realization. E.g., not "Build a dashboard", but "Provide an at-a-glance status overview."</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <h5 class="font-bold text-indigo-700 mb-2 border-b pb-2"><i class="fas fa-sitemap mr-2"></i> Context</h5>
+                    <p class="text-sm text-slate-600" data-my="<strong>Apakah keadaannya?</strong> Panduan visual, komponen sedia ada, atau had teknikal. Rujukan konkrit/lakaran (rujuk imej atas) mengurangkan ralat AI."><strong>Under which conditions?</strong> Visual constraints, existing systems, accessibility. Concrete artifacts (like sketches) restrict AI interpretative variance.</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <h5 class="font-bold text-emerald-700 mb-2 border-b pb-2"><i class="fas fa-search-check mr-2"></i> Quality</h5>
+                    <p class="text-sm text-slate-600" data-my="<strong>Adakah hasilnya bagus?</strong> Adakah ia berfungsi (runnable)? Boleh digunakan (UX quality)? Boleh disepadukan? Semakan ini perlukan kepakaran anda."><strong>How do we recognize a good result?</strong> Is it runnable? Understandable UX? Integrable? Vibe coding shifts effort from manual typing to quality curation.</p>
+                </div>
+            </div>
+
+            <!-- Upload Placeholder 2 -->
+            <div class="bg-slate-100 rounded-xl p-4 text-center text-slate-500 mb-10 border-2 border-dashed border-slate-300">
+                <i class="fas fa-project-diagram text-3xl mb-2 text-slate-400"></i>
+                <p class="font-bold text-sm" data-my="Gantikan div ini dengan [Imej 3] (Intent-Refactor-Verify Loop) dari dokumen anda.">Replace this div with [Image 3] (Intent-Refactor-Verify Loop) from your document.</p>
+            </div>
+
+            <h4 class="text-xl font-bold text-slate-800 mb-4 mt-10" data-my="1.3 Kerangka Teknikal: Sains Prompting (B.A.S.I.C)">1.3 Technical Framework: The Science of Prompting (B.A.S.I.C)</h4>
+            <p class="text-slate-600 mb-6 leading-relaxed" data-my="Jika ICQ adalah 'Apa' (Falsafah UX), maka B.A.S.I.C adalah 'Bagaimana' (Kerangka teknikal menulis teks untuk Gemini).">
+                If ICQ is the 'What' (UX Philosophy), then B.A.S.I.C is the 'How' (The technical framework for writing text to Gemini).
+            </p>
+            
+            <!-- 5 Vibrant Colors for B.A.S.I.C -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="border-2 border-red-400 bg-red-50 text-red-900 p-4 rounded-xl shadow-sm">
+                    <strong data-my="[B] Boundaries (Sempadan):">[B] Boundaries:</strong> 
+                    <span data-my="Tetapkan had (cth, 'Bina aplikasi pelancongan', bukan 'Bina app dunia').">Set strict limits (e.g., "Build a tourism app", not "Build a world app").</span>
+                </div>
+                <div class="border-2 border-orange-400 bg-orange-50 text-orange-900 p-4 rounded-xl shadow-sm">
+                    <strong data-my="[A] Actions (Tindakan):">[A] Actions:</strong> 
+                    <span data-my="Nyatakan Input, Proses, dan Output dengan jelas.">State the Input, Process, and Output clearly.</span>
+                </div>
+                <div class="border-2 border-green-400 bg-green-50 text-green-900 p-4 rounded-xl shadow-sm">
+                    <strong data-my="[S] Storage (Storan):">[S] Storage:</strong> 
+                    <span data-my="Adakah anda perlu memori sementara atau database kekal?">Do you need temporary memory or a permanent database?</span>
+                </div>
+                <div class="border-2 border-purple-400 bg-purple-50 text-purple-900 p-4 rounded-xl shadow-sm">
+                    <strong data-my="[I] Isolate (Asingkan):">[I] Isolate:</strong> 
+                    <span data-my="Bina langkah demi langkah. Jangan minta aplikasi penuh serentak.">Build step-by-step. Don't ask for the whole app at once.</span>
+                </div>
+                <div class="border-2 border-blue-500 bg-blue-100 text-blue-900 p-5 rounded-xl shadow-sm md:col-span-2 flex items-center gap-3">
+                    <i class="fas fa-check-circle text-2xl text-blue-600"></i>
+                    <div>
+                        <strong data-my="[C] Correct (Betulkan):">[C] Correct:</strong> 
+                        <span data-my="Anggap AI seperti pelatih intern. Jika ia buat silap, arah ia baiki!">Treat AI like an intern. If it makes a mistake, ask it to fix it!</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mini Quiz M1 -->
+            <div class="mt-12 bg-yellow-50/80 border-2 border-yellow-200 p-6 md:p-8 rounded-2xl shadow-sm">
+                <div class="flex justify-between items-start mb-4">
+                    <h4 class="font-bold text-yellow-800 flex items-center gap-2 text-lg" data-my="<i class='fas fa-lightbulb text-yellow-500 text-2xl'></i> Uji Kefahaman Modul 1"><i class="fas fa-lightbulb text-yellow-500 text-2xl"></i> Module 1 Knowledge Check</h4>
+                    <button onclick="resetQuiz(this, 'm1')" class="text-yellow-600 hover:text-yellow-800 transition" title="Reset Quiz"><i class="fas fa-redo text-lg"></i></button>
+                </div>
+                <p class="font-bold text-slate-800 mb-4" data-my="Menurut konsep Vibe Coding, apakah peranan utama pengguna masa kini?">According to the concept of Vibe Coding, what is the primary role of the user today?</p>
+                <div class="space-y-2">
+                    <button onclick="checkAnswer(this, false, 'Incorrect. This is the old traditional way of coding.', 'Salah. Ini adalah kaedah pengekodan tradisional lama.', 'm1')" class="w-full text-left px-4 py-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 transition" data-my="A. Menulis kod dari kosong (Writing code from scratch)">A. Writing code from scratch manually</button>
+                    <button onclick="checkAnswer(this, true, 'Correct! You give in to the vibes and guide the AI assistant using frameworks like ICQ and B.A.S.I.C.', 'Tepat sekali! Anda membimbing AI menggunakan kerangka seperti ICQ dan B.A.S.I.C.', 'm1')" class="w-full text-left px-4 py-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 transition" data-my="B. Membimbing pembantu AI (Guiding an AI assistant)">B. Guiding an AI assistant to generate code</button>
+                    <button onclick="checkAnswer(this, false, 'Incorrect. You still need a problem-solving mindset and UX steering.', 'Salah. Anda masih perlukan minda reka bentuk penyelesaian masalah dan UX.', 'm1')" class="w-full text-left px-4 py-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 transition" data-my="C. Mengabaikan kualiti sepenuhnya (Ignoring quality completely)">C. Completely ignoring the quality of the output</button>
+                </div>
+                <div class="mt-3 text-sm font-bold hidden feedback-msg"></div>
+            </div>
+        </section>
+
+        <!-- MODULE 2: REPLIT -->
+        <section id="module2" class="material-card p-8 md:p-10 scroll-mt-24">
+            <div class="mb-8">
+                <span class="text-sm font-bold text-orange-600 tracking-wider uppercase" data-my="Modul 2">Module 2</span>
+                <h3 class="text-3xl font-extrabold text-slate-900 mt-2 display-font" data-my="Aplikasi Web Visual (Replit)">Visual Web Apps (Replit)</h3>
+            </div>
+
+            <div class="bg-slate-50 border-l-4 border-orange-500 p-4 mb-8 rounded-r-lg">
+                <p class="text-sm font-semibold text-slate-800 mb-1" data-my="Objektif Modul:">Module Objective:</p>
+                <p class="text-sm text-slate-600" data-my="Membina aplikasi pelancongan menggunakan platform Replit kerana ia memberi impak visual tertinggi, hasil segera, dan menyembunyikan kod kompleks.">Build a tourism app using the Replit platform because it provides the highest visual impact, straightforward results, and hides complex coding.</p>
+            </div>
+
+            <div class="mb-8">
+                <h4 class="font-bold text-slate-800 mb-2" data-my="Pengenalan & Konteks Masalah:">Introduction & Problem Context:</h4>
+                <p class="text-slate-600 bg-orange-50/50 p-4 rounded-xl border border-orange-100 mb-4" data-my="<strong>Kenapa guna Replit Agent?</strong> Platform ini sangat istimewa untuk <em>Vibe Coding</em>. Anda tidak perlu melihat fail HTML atau CSS yang berserabut. Anda cuma taip, AI bina, dan ia terus terbitkan (deploy) URL laman web anda secara nyata!">
+                    <strong>Why use Replit Agent?</strong> This platform is amazing for <em>Vibe Coding</em>. You don't need to look at messy HTML or CSS files. You just type, the AI builds it, and it instantly deploys a live website URL!
+                </p>
+                <p class="text-slate-600 bg-orange-50/50 p-4 rounded-xl border border-orange-100 mb-4" data-my="<strong>Konteks Kita (Teori ICQ):</strong> Kita mahu membina Aplikasi Pelancongan untuk Taman Negara Tanjung Piai, Pontian. Matlamat kita (Intent) adalah untuk memberi pengalaman visual Hutan Bakau & Teknologi AR.">
+                    <strong>Our Context (ICQ Theory):</strong> We want to build a Tourism App for Tanjung Piai National Park, Pontian. Our Intent is to provide a visual Mangrove Forest & AR Technology experience.
+                </p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                <a href="https://replit.com/" target="_blank" class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 rounded-xl text-center transition flex-1 shadow-md"><i class="fas fa-laptop-code mr-2"></i> Buka Replit Agent</a>
+            </div>
+
+            <h4 class="font-bold text-slate-800 mb-4" data-my="Aktiviti Praktikal 1: Prompt Tanjung Piai (Replit)">Hands-On Activity 1: Tanjung Piai Prompt (Replit)</h4>
+            
+            <div class="space-y-5 mb-10">
+                <div class="flex gap-4 items-start">
+                    <span class="bg-orange-600 text-white rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">1</span>
+                    <p class="text-sm text-slate-700 pt-1" data-my="<strong>Buka</strong> laman web Replit dan buat projek Agent baharu."><strong>Open</strong> Replit and create a new Agent project.</p>
+                </div>
+                <div class="flex gap-4 items-start">
+                    <span class="bg-orange-600 text-white rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">2</span>
+                    <div class="w-full">
+                        <p class="text-sm text-slate-700 mb-3 pt-1" data-my="<strong>Salin prompt B.A.S.I.C</strong> di bawah dan tampalkan kepada Agent Replit. Perhatikan bagaimana bahagian [Context] & [Intent] sangat terperinci!"><strong>Copy the B.A.S.I.C prompt</strong> below and paste it into the Replit Agent. Notice how detailed the [Context] & [Intent] is!</p>
+                        <div class="relative group">
+                            <div class="prompt-box p-5 pt-14 rounded-2xl text-sm leading-relaxed border border-slate-700 shadow-inner whitespace-pre-wrap">Act as an expert mobile web app developer. 
+Create a mobile-friendly tourism app for Tanjung Piai, Pontian, Johor.
+
+Theme:
+- mangrove forest
+- api-api trees
+- nature tourism
+- warm tropical colors
+- modern immersive tourism experience
+
+The app should have:
+1. A welcome screen with the text:
+   "Selamat datang ke penghujung Benua Asia, Tanjung Piai Pontian, Johor"
+2. A cute avatar character named "Cikong"
+3. A large button called:
+   " 🌍  View Globe in AR"
+When the button is pressed:
+- open this WebAR experience:
+https://mywebar.com/p/Project_0_tbnr5zeeoe
+4. Add another button:
+   " 📸  Snap Photo"
+When pressed:
+- allow users to take a screenshot/photo with the AR experience
+- show a simple instruction:
+  "Take a screenshot together with the Globe AR!"
+
+Design requirements:
+- mobile friendly
+- modern UI
+- immersive tourism feel
+- mangrove illustrations
+- green and ocean blue color palette
+- rounded cards and buttons
+- suitable for tourists and school students
+
+Technical requirements:
+- make it work smoothly in Replit
+- use simple HTML, CSS and JavaScript
+- keep everything beginner friendly</div>
+                            <button onclick="copyText(this)" class="absolute top-3 right-3 bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-1.5 rounded font-medium transition shadow-sm">📋 Copy Prompt</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-4 items-start">
+                    <span class="bg-orange-600 text-white rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">3</span>
+                    <p class="text-sm text-slate-700 pt-1" data-my="Biarkan Replit membina fail secara magis. Selepas selesai, klik butang <strong>'Deploy' / 'Publish'</strong> di penjuru atas kanan.">Let Replit magically build the files. Once done, click the <strong>'Deploy' / 'Publish'</strong> button at the top right corner.</p>
+                </div>
+                
+                <!-- Upload Placeholders for Results -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                    <div class="bg-slate-100 rounded-xl p-4 text-center text-slate-500 border-2 border-dashed border-slate-300">
+                        <i class="fas fa-desktop text-3xl mb-2 text-slate-400"></i>
+                        <p class="font-bold text-sm" data-my="Gantikan div ini dengan [Imej 4] (Paparan Replit Publishing).">Replace this div with [Image 4] (Replit Publishing Dashboard).</p>
+                    </div>
+                    <div class="bg-slate-100 rounded-xl p-4 text-center text-slate-500 border-2 border-dashed border-slate-300">
+                        <i class="fas fa-mobile-alt text-3xl mb-2 text-slate-400"></i>
+                        <p class="font-bold text-sm" data-my="Gantikan div ini dengan [Imej Terakhir] (Paparan UI Tanjung Piai di Telefon).">Replace this div with [Last Image] (Tanjung Piai Mobile UI view).</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mini Quiz M2 -->
+            <div class="mt-12 bg-yellow-50/80 border-2 border-yellow-200 p-6 md:p-8 rounded-2xl shadow-sm">
+                <div class="flex justify-between items-start mb-4">
+                    <h4 class="font-bold text-yellow-800 flex items-center gap-2 text-lg" data-my="<i class='fas fa-lightbulb text-yellow-500 text-2xl'></i> Uji Kefahaman Modul 2"><i class="fas fa-lightbulb text-yellow-500 text-2xl"></i> Module 2 Knowledge Check</h4>
+                    <button onclick="resetQuiz(this, 'm2')" class="text-yellow-600 hover:text-yellow-800 transition" title="Reset Quiz"><i class="fas fa-redo text-lg"></i></button>
+                </div>
+                <p class="font-bold text-slate-800 mb-4" data-my="Mengapakah platform seperti Replit sangat popular untuk memulakan Vibe Coding berbanding Android Studio?">Why is a platform like Replit highly popular for starting Vibe Coding compared to Android Studio?</p>
+                <div class="space-y-2">
+                    <button onclick="checkAnswer(this, true, 'Correct! It hides complex coding and provides high visual impact with instant web deployment.', 'Tepat! Ia menyembunyikan kod kompleks dan memberi impak visual tinggi dengan pautan laman web segera.', 'm2')" class="w-full text-left px-4 py-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 transition" data-my="A. Ia menyembunyikan kod kompleks dan memberi URL web secara segera.">A. It hides complex code and provides an instant web URL.</button>
+                    <button onclick="checkAnswer(this, false, 'Incorrect. Replit relies heavily on internet connection.', 'Salah. Replit bergantung sepenuhnya pada sambungan internet.', 'm2')" class="w-full text-left px-4 py-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 transition" data-my="B. Kerana ia tidak memerlukan internet langsung.">B. Because it does not require the internet at all.</button>
+                    <button onclick="checkAnswer(this, false, 'Incorrect. Android Studio is for Native apps, Replit is for Web Apps.', 'Salah. Replit digunakan untuk Aplikasi Web, bukan native APK.', 'm2')" class="w-full text-left px-4 py-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 transition" data-my="C. Kerana ia menjana fail native APK lebih laju.">C. Because it generates native APK files much faster.</button>
+                </div>
+                <div class="mt-3 text-sm font-bold hidden feedback-msg"></div>
+            </div>
+        </section>
+
+        <!-- MODULE 3: EXPO SNACK -->
+        <section id="module3" class="material-card p-8 md:p-10 scroll-mt-24">
+            <div class="mb-8">
+                <span class="text-sm font-bold text-cyan-600 tracking-wider uppercase" data-my="Modul 3">Module 3</span>
+                <h3 class="text-3xl font-extrabold text-slate-900 mt-2 display-font" data-my="Prototaip Mudah Alih (Expo Snack)">Mobile Prototypes (Expo Snack)</h3>
+            </div>
+
+            <div class="bg-slate-50 border-l-4 border-cyan-500 p-4 mb-8 rounded-r-lg">
+                <p class="text-sm font-semibold text-slate-800 mb-1" data-my="Objektif Modul:">Module Objective:</p>
+                <p class="text-sm text-slate-600" data-my="Mengaplikasi B.A.S.I.C untuk membangun aplikasi logik matematik (Resizer) guna emulator web React Native.">Apply B.A.S.I.C to build mathematical logic apps using a web-based React Native emulator.</p>
+            </div>
+
+            <div class="mb-8">
+                <h4 class="font-bold text-slate-800 mb-2" data-my="Pengenalan & Konteks Masalah:">Introduction & Problem Context:</h4>
+                <p class="text-slate-600 bg-cyan-50/50 p-4 rounded-xl border border-cyan-100 mb-4" data-my="<strong>Apa beza Replit (M2) dan Expo Snack (M3)?</strong> Replit bagus untuk laman web HTML. Tetapi jika kita mahu buat struktur aplikasi mudah alih Android sebenar (React Native), kita perlu guna Expo Snack untuk bina logik (logic) yang lebih kukuh!">
+                    <strong>Difference between Replit and Expo Snack?</strong> Replit is great for HTML websites. But if we want true mobile app structures (React Native), we use Expo Snack to build stronger app logic!
+                </p>
+                <p class="text-slate-600 bg-cyan-50/50 p-4 rounded-xl border border-cyan-100 mb-4" data-my="<strong>Masalah Kita:</strong> Kita nampak resipi viral Khairul Aming Puding Roti! Tapi ia cuma untuk 2 orang, kita nak masak untuk 10. Kita perlukan aplikasi kira bahan yang tepat untuk dibeli.">
+                    <strong>The Problem:</strong> We see a viral Khairul Aming recipe for Puding Roti! But it is only for 2 people, and we want to cook for 10. We need to calculate the exact ingredients to buy at the shop.
+                </p>
+                
+                <div class="bg-white border border-slate-200 p-4 rounded-xl shadow-sm inline-block">
+                    <p class="text-sm font-bold text-slate-800 mb-2" data-my="Pertama kali guna Expo Snack? Tonton panduan ringkas ini:">First time using Expo Snack? Watch this quick guide:</p>
+                    <a href="https://www.youtube.com/results?search_query=how+to+use+expo+snack+react+native" target="_blank" class="text-blue-600 font-bold hover:underline text-sm flex items-center gap-2"><i class="fab fa-youtube text-red-500 text-lg"></i> Watch Tutorial: How to use Expo Snack</a>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                <a href="https://snack.expo.dev" target="_blank" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-6 rounded-xl text-center transition flex-1"><i class="fas fa-mobile-alt mr-2"></i> Buka Expo Snack</a>
+                <a href="https://gemini.google.com" target="_blank" class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-6 rounded-xl text-center transition flex-1"><i class="fas fa-sparkles mr-2"></i> Buka Google Gemini</a>
+            </div>
+
+            <!-- Upload Placeholder: Expo Screenshot -->
+            <div class="bg-slate-100 rounded-xl p-4 text-center text-slate-500 mb-8 border-2 border-dashed border-slate-300">
+                <i class="fas fa-qrcode text-3xl mb-2 text-slate-400"></i>
+                <p class="font-bold text-sm" data-my="Gantikan div ini dengan [Imej 5] (Paparan QR Code Expo Go).">Replace this div with [Image 5] (Expo Go QR Code View).</p>
+            </div>
+
+            <h4 class="font-bold text-slate-800 mb-4" data-my="Aktiviti Praktikal 2: Menjana Kod Logik Resipi">Hands-On Activity 2: Generating Recipe Logic</h4>
+            
+            <div class="space-y-5 mb-10">
+                <div class="flex gap-4 items-start">
+                    <span class="bg-cyan-600 text-white rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">1</span>
+                    <div class="w-full">
+                        <p class="text-sm text-slate-700 mb-3 pt-1" data-my="<strong>Salin prompt</strong> di bawah dan tampalkan (paste) ke dalam Gemini."><strong>Copy the prompt</strong> below and paste it into Gemini.</p>
+                        <div class="relative group">
+                            <div class="prompt-box p-5 pt-14 rounded-2xl text-sm leading-relaxed border border-slate-700 shadow-inner">Act as a React Native developer. I want to build a Recipe Resizer in Expo Snack for a Puding Roti recipe. <br><br>[B] The app only needs one screen.<br>[A] It needs inputs for original servings (e.g. 2) and target servings (e.g. 10). Take a text list of ingredients, and when I press 'Calculate', extract the numbers and multiply the amounts by (Target/Original). Display the new grocery list below.<br>[S] Just use React state for temporary memory.<br>[I] Put everything in a single App.js file.</div>
+                            <button onclick="copyText(this)" class="absolute top-3 right-3 bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-1.5 rounded font-medium transition shadow-sm">📋 Copy Prompt</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-4 items-start">
+                    <span class="bg-cyan-600 text-white rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">2</span>
+                    <p class="text-sm text-slate-700 pt-1" data-my="Selepas Gemini menjana jawapan, klik butang <strong>'Copy Code'</strong>. Buka Expo Snack (<code>App.js</code>), padam kod lama dan <strong>tampal (paste)</strong> kod baharu.">After Gemini generates the response, click <strong>'Copy Code'</strong>. Open Expo Snack (<code>App.js</code>), delete old code, and paste.</p>
+                </div>
+                <div class="flex gap-4 items-start">
+                    <span class="bg-cyan-600 text-white rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">3</span>
+                    <p class="text-sm text-slate-700 pt-1" data-my="Klik tab <strong>'Web'</strong> di panel kanan, ATAU imbas kod QR <strong>'My Device'</strong> menggunakan aplikasi <strong>Expo Go</strong> di telefon anda!">Click the <strong>'Web'</strong> tab in the right panel, OR scan the <strong>'My Device'</strong> QR code using the <strong>Expo Go</strong> app!</p>
+                </div>
+            </div>
+
+            <h4 class="font-bold text-slate-800 mb-4" data-my="Aktiviti Praktikal 3: Konsep 'C' (Correct) UX">Hands-On Activity 3: The "C" (Correct)</h4>
+            <p class="text-slate-600 text-sm mb-6" data-my="Ingat Teori ICQ dari Modul 1? Kualiti UX masih lemah! Tiada checkbox bila kita ke kedai. Arah AI untuk <strong>Correct (Betulkan)</strong>:">Remember the ICQ Theory from Module 1? The UX quality is poor! No checkboxes for shopping. Ask AI to <strong>Correct</strong> it:</p>
+            
+            <div class="space-y-5 mb-8">
+                <div class="flex gap-4 items-start">
+                    <span class="bg-blue-600 text-white rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">1</span>
+                    <div class="w-full">
+                        <p class="text-sm text-slate-700 mb-3 pt-1" data-my="Kembali ke Gemini dan hantar arahan pembaikan ini:">Go back to Gemini and send this correction prompt:</p>
+                        <div class="relative group">
+                            <div class="bg-slate-100 p-5 pt-14 rounded-2xl text-sm text-slate-800 border border-slate-300 font-mono shadow-inner">The math is perfect! But the grocery list is just plain text. Please CORRECT the code and add a clickable checkbox next to every ingredient. Make the text strike-through when I click it.</div>
+                            <button onclick="copyText(this)" class="absolute top-3 right-3 bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded font-medium transition">📋 Copy Prompt</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-4 items-start">
+                    <span class="bg-blue-600 text-white rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">2</span>
+                    <p class="text-sm text-slate-700 pt-1" data-my="Salin kod terbaharu, tampal semula ke <code>App.js</code> di Expo Snack. UX aplikasi anda kini telah ditingkatkan!">Copy the newest code, paste it back to <code>App.js</code>. Your app UX is now upgraded!</p>
+                </div>
+            </div>
+
+            <h4 class="font-bold text-slate-800 mb-4" data-my="Aktiviti Praktikal 4: Konsep 'S' (Storage)">Hands-On Activity 4: The "S" (Storage)</h4>
+            <p class="text-slate-600 text-sm mb-6" data-my="Aplikasi kita nampak hebat, tapi ada satu masalah: Jika kita 'refresh' atau tutup aplikasi, senarai barang runcit kita hilang! Mari kita kembali kepada konsep <strong>S (Storage)</strong>. Arahkan AI untuk menukar memori sementara kepada storan telefon kekal (AsyncStorage):">Our app looks great, but there is one problem: If we 'refresh' or close the app, our grocery list disappears! Let's revisit the <strong>S (Storage)</strong> concept. Command the AI to change temporary memory to permanent phone storage (AsyncStorage):</p>
+            
+            <div class="space-y-5 mb-8">
+                <div class="flex gap-4 items-start">
+                    <span class="bg-blue-600 text-white rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">1</span>
+                    <div class="w-full">
+                        <p class="text-sm text-slate-700 mb-3 pt-1" data-my="Hantar arahan naik taraf storan ini kepada Gemini:">Send this storage upgrade prompt to Gemini:</p>
+                        <div class="relative group">
+                            <div class="bg-slate-100 p-5 pt-14 rounded-2xl text-sm text-slate-800 border border-slate-300 font-mono shadow-inner">I love the checkboxes! But when I refresh the app, my grocery list disappears. Please update the code to save the list permanently in the phone's local storage (using AsyncStorage) so I don't lose my data.</div>
+                            <button onclick="copyText(this)" class="absolute top-3 right-3 bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded font-medium transition">📋 Copy Prompt</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-4 items-start">
+                    <span class="bg-blue-600 text-white rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">2</span>
+                    <p class="text-sm text-slate-700 pt-1" data-my="Salin kod terbaharu, tampal semula ke <code>App.js</code>. Cuba tambah barang, 'refresh' Expo Snack, dan lihat senarai anda kini kekal tersimpan dalam telefon!">Copy the newest code, paste it back to <code>App.js</code>. Try adding items, refresh Expo Snack, and see that your list is now saved permanently in the phone!</p>
+                </div>
+            </div>
+
+            <div class="mt-12 mb-8 border-t border-slate-200 pt-8">
+                <h4 class="font-bold text-slate-800 mb-2" data-my="Konteks Masalah 2:">Problem Context 2:</h4>
+                <p class="text-slate-600 bg-cyan-50/50 p-4 rounded-xl border border-cyan-100" data-my="Kita ada lebihan susu dari resipi tadi! Kita perlukan Aplikasi Penjejak Tarikh Luput. Sebagai permulaan, mari kita bina versi manual (menaip tarikh) menggunakan Expo Snack.">
+                    We have leftover milk from our recipe! We need an Expiry Date Tracker. For a start, let's build a manual version (typing the date) using Expo Snack.
+                </p>
+            </div>
+
+            <h4 class="font-bold text-slate-800 mb-4" data-my="Aktiviti Praktikal 5: Penjejak Luput Manual">Hands-On Activity 5: The Manual Expiry Tracker</h4>
+            
+            <div class="space-y-5 mb-8">
+                <div class="flex gap-4 items-start">
+                    <span class="bg-cyan-600 text-white rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">1</span>
+                    <div class="w-full">
+                        <p class="text-sm text-slate-700 mb-3 pt-1" data-my="Buka Gemini dan hantar prompt ini. Kemudian tampal kod ke dalam fail <code>App.js</code> Expo Snack anda.">Open Gemini and send this prompt. Then paste the generated code into your Expo Snack <code>App.js</code> file.</p>
+                        <div class="relative group">
+                            <div class="prompt-box p-6 pt-14 rounded-2xl text-sm leading-relaxed border border-slate-700 shadow-inner whitespace-pre-wrap">Act as a React Native developer. I want to build a Manual Expiry Date Tracker in Expo Snack.
+
+[B] The app needs one simple screen.
+[A] Provide text inputs for Product Name and Expiry Date, and a 'Save' button. Display the saved items in a list below.
+[S] Use AsyncStorage to save this data permanently on the device.
+[I] Put everything in a single App.js file.</div>
+                            <button onclick="copyText(this)" class="absolute top-3 right-3 bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-1.5 rounded font-medium transition shadow-sm">📋 Copy Prompt</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mini Quiz M3 -->
+            <div class="mt-12 bg-yellow-50/80 border-2 border-yellow-200 p-6 md:p-8 rounded-2xl shadow-sm">
+                <div class="flex justify-between items-start mb-4">
+                    <h4 class="font-bold text-yellow-800 flex items-center gap-2 text-lg" data-my="<i class='fas fa-lightbulb text-yellow-500 text-2xl'></i> Uji Kefahaman Modul 3"><i class="fas fa-lightbulb text-yellow-500 text-2xl"></i> Module 3 Knowledge Check</h4>
+                    <button onclick="resetQuiz(this, 'm3')" class="text-yellow-600 hover:text-yellow-800 transition" title="Reset Quiz"><i class="fas fa-redo text-lg"></i></button>
+                </div>
+                <p class="font-bold text-slate-800 mb-4" data-my="Jika kod berjalan lancar tetapi senarai barang tidak mempunyai butang 'Tandakan (Checkbox)', apakah tindakan Vibe Coding yang patut diambil?">If the code runs smoothly but the grocery list has no checkboxes, what Vibe Coding action should you take?</p>
+                <div class="space-y-2">
+                    <button onclick="checkAnswer(this, false, 'Incorrect. As a Vibe Coder, you do not write HTML manually.', 'Salah. Sebagai Vibe Coder, anda tidak perlu menulis HTML secara manual.', 'm3')" class="w-full text-left px-4 py-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 transition" data-my="A. Mula belajar dan menaip kod HTML manual.">A. Start learning and typing manual HTML codes.</button>
+                    <button onclick="checkAnswer(this, false, 'Incorrect. This does not solve the UX problem.', 'Salah. Ini tidak menyelesaikan masalah paparan pengguna (UX).', 'm3')" class="w-full text-left px-4 py-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 transition" data-my="B. Abaikan sahaja kerana kiraan matematik sudah betul.">B. Just ignore it because the mathematical logic is correct.</button>
+                    <button onclick="checkAnswer(this, true, 'Correct! You assess the Quality (UX) and command the AI to Correct it.', 'Tepat! Anda menyemak kualiti UX dan arahkan AI membetulkannya.', 'm3')" class="w-full text-left px-4 py-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 transition" data-my="C. Semak kualiti (UX) dan arah AI untuk membetulkannya (Correct).">C. Check the Quality (UX) and command AI to Correct it.</button>
+                </div>
+                <div class="mt-3 text-sm font-bold hidden feedback-msg"></div>
+            </div>
+        </section>
+
+        <!-- MODULE 4: ANDROID STUDIO NATIVE -->
+        <section id="module4" class="material-card p-8 md:p-10 scroll-mt-24">
+            <div class="mb-8">
+                <span class="text-sm font-bold text-indigo-600 tracking-wider uppercase" data-my="Modul 4">Module 4</span>
+                <h3 class="text-3xl font-extrabold text-slate-900 mt-2 display-font" data-my="Kuasa Asli (Native)">Native Power</h3>
+            </div>
+
+            <div class="bg-slate-50 border-l-4 border-indigo-500 p-4 mb-8 rounded-r-lg">
+                <p class="text-sm font-semibold text-slate-800 mb-1" data-my="Objektif Modul:">Module Objective:</p>
+                <p class="text-sm text-slate-600" data-my="Faham had platform web, pindah ke Android Studio untuk guna hardware (kamera/sensor).">Understand web platform limits, transition to native Android Studio for hardware/sensor integration.</p>
+            </div>
+
+            <div class="mb-8">
+                <h4 class="font-bold text-slate-800 mb-2" data-my="Pengenalan: Konteks Had Web">Introduction: Web Limitations</h4>
+                <p class="text-slate-600 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 mb-4" data-my="Dalam Modul 3, kita bina Penjejak Tarikh Luput secara manual. Tapi kita <em>malas</em> nak taip tarikh yang pelbagai format! Kita nak guna kamera telefon untuk scan tarikh expired tanpa internet (offline)! <br><br><strong>Kekangan:</strong> Web App di Expo Snack amat sukar untuk buat Machine Learning (OCR) offline. Untuk integrasi sensor (kamera pintar), kita wajib guna kuasa platform native: <strong>Android Studio</strong>.">
+                    In Module 3, we built the Expiry Tracker manually. But we are <em>lazy</em> to type various date formats! We want to use the camera to scan expiry dates offline! <br><br><strong>Limitation:</strong> Web Apps (Expo) struggle with heavy offline Machine Learning (OCR). For smart camera sensors, we must use native power: <strong>Android Studio</strong>.
+                </p>
+
+                <div class="bg-white border border-slate-200 p-4 rounded-xl shadow-sm inline-block">
+                    <p class="text-sm font-bold text-slate-800 mb-2" data-my="Tidak pasti di mana Ejen Gemini dalam Android Studio? Tonton panduan ini:">Not sure where the Gemini Agent is in Android Studio? Watch this guide:</p>
+                    <a href="https://www.youtube.com/results?search_query=how+to+use+gemini+in+android+studio" target="_blank" class="text-blue-600 font-bold hover:underline text-sm flex items-center gap-2"><i class="fab fa-youtube text-red-500 text-lg"></i> Watch Tutorial: Using Gemini Agent in Android Studio</a>
+                </div>
+            </div>
+
+            <h4 class="font-bold text-slate-800 mb-4" data-my="Aktiviti Praktikal 6: Prompt Native ML (Kamera Pintar)">Hands-On Activity 6: The Native ML Prompt (Smart Camera)</h4>
+            
+            <div class="space-y-5 mb-10">
+                <div class="flex gap-4 items-start">
+                    <span class="bg-indigo-600 text-white rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">1</span>
+                    <p class="text-sm text-slate-700 pt-1" data-my="Buka <strong>Android Studio</strong> di komputer anda. Buka <strong>Ejen Gemini (Gemini Agent)</strong> yang terbina di panel kanan.">Open <strong>Android Studio</strong> on your computer. Open the built-in <strong>Gemini Agent</strong> in the right panel.</p>
+                </div>
+                <div class="flex gap-4 items-start">
+                    <span class="bg-indigo-600 text-white rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">2</span>
+                    <div class="w-full">
+                        <p class="text-sm text-slate-700 mb-3 pt-1" data-my="Hantar prompt B.A.S.I.C tahap 'Mega' ini kepada Ejen tersebut. Perhatikan bagaimana kita memintanya membina 'kotak sasaran', menyimpan nama produk, menyusun senarai, dan mengira baki hari sebelum luput secara automatik!">Send this 'Mega' B.A.S.I.C prompt to the Agent. Notice how we ask it to build a 'target box', save the product name, build a list, and automatically calculate the days left until expired!</p>
+                        <div class="relative group">
+                            <div class="prompt-box p-6 pt-14 rounded-2xl text-sm leading-relaxed border border-slate-700 shadow-inner whitespace-pre-wrap">Act as a Senior Android Developer. Create an Expiry Date Tracker app for leftover food using Kotlin and Jetpack Compose (Material 3).
+
+[B] The app allows users to track food items by scanning expiry dates using the camera or entering them manually.
+
+[A] UI & Functional Logic Requirements:
+• On-Demand Scanner: Show a dark placeholder box with an 'Open Scanner' button. When clicked, launch a CameraX Preview. Overlay a Targeting Box (bounding box) in the center. Include a manual close ('X') button to stop the camera and save battery.
+• Input Fields: An OutlinedTextField for Expiry Date (auto-filled by scan or manual entry), and Product Name. A 'Save Item' button enabled only when both are filled.
+• Scan Logic: Use ML Kit to recognize text ONLY inside the center targeting box. Use Regex to find date patterns (e.g., DD/MM/YYYY, MM/YY). Auto-close the camera once a date is detected and focus on the Product Name.
+• Saved List: Below the inputs, display a list of cards showing Product Name, Expiry Date, and dynamically calculate 'Expires in X days'. Highlight the text in Red if <= 3 days. Clear inputs immediately after a successful 'Save'.
+
+[S] Use temporary state memory for now. 
+
+[I] Tech Stack & Permissions:
+• CameraX (Core, Camera2, Lifecycle, View) & Google ML Kit Text Recognition. Use a LazyColumn for the screen.
+• Handle CAMERA permission gracefully within the UI. Include the necessary &lt;uses-permission&gt; and &lt;uses-feature&gt; for the manifest.
+• Provide the complete working code in one go.</div>
+                            <button onclick="copyText(this)" class="absolute top-3 right-3 bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-1.5 rounded font-medium transition shadow-sm">📋 Copy Prompt</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-4 items-start">
+                    <span class="bg-indigo-600 text-white rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">3</span>
+                    <p class="text-sm text-slate-700 pt-1" data-my="Ejen akan menjana kod Kotlin dan mengemas kini fail <code>MainActivity.kt</code> anda secara terus (live). Anda tidak perlu lagi menyalin dan menampal (copy-paste) secara manual!">The Agent will generate the Kotlin code and update your <code>MainActivity.kt</code> file live. You no longer need to copy and paste manually!</p>
+                </div>
+                <div class="flex gap-4 items-start">
+                    <span class="bg-indigo-600 text-white rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">4</span>
+                    <p class="text-sm text-slate-700 pt-1" data-my="Tekan butang <strong>Run (Simbol ▶️ Hijau)</strong> di bahagian atas tetingkap untuk melancarkan aplikasi di Emulator!">Press the <strong>Run (▶️ Green icon)</strong> button at the top to launch the app on the Emulator!</p>
+                </div>
+            </div>
+
+            <!-- Mini Quiz M4 -->
+            <div class="mt-8 bg-yellow-50/80 border-2 border-yellow-200 p-6 md:p-8 rounded-2xl shadow-sm">
+                <div class="flex justify-between items-start mb-4">
+                    <h4 class="font-bold text-yellow-800 flex items-center gap-2 text-lg" data-my="<i class='fas fa-lightbulb text-yellow-500 text-2xl'></i> Uji Kefahaman Modul 4"><i class="fas fa-lightbulb text-yellow-500 text-2xl"></i> Module 4 Knowledge Check</h4>
+                    <button onclick="resetQuiz(this, 'm4')" class="text-yellow-600 hover:text-yellow-800 transition" title="Reset Quiz"><i class="fas fa-redo text-lg"></i></button>
+                </div>
+                <p class="font-bold text-slate-800 mb-4" data-my="Jika anda perlukan integrasi hardware mendalam seperti Kamera pintar offline, platform manakah yang paling berkuasa?">If you need deep hardware integration like an offline Smart Camera, which platform is the most powerful?</p>
+                <div class="space-y-2">
+                    <button onclick="checkAnswer(this, false, 'Incorrect. Replit is for web apps.', 'Salah. Replit adalah untuk Web App.', 'm4')" class="w-full text-left px-4 py-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 transition" data-my="A. Platform Web (Replit)">A. Web Platforms (Replit)</button>
+                    <button onclick="checkAnswer(this, true, 'Correct! Native platforms like Android Studio are required for heavy hardware integration.', 'Tepat sekali! Platform native seperti Android Studio diperlukan untuk integrasi hardware mendalam.', 'm4')" class="w-full text-left px-4 py-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 transition" data-my="B. Platform Native / Android Studio">B. Native Platform / Android Studio</button>
+                    <button onclick="checkAnswer(this, false, 'Incorrect. Gemini is the AI tool, not the platform.', 'Salah. Gemini adalah alatan AI.', 'm4')" class="w-full text-left px-4 py-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 transition" data-my="C. Google Gemini Web">C. Google Gemini Web</button>
+                </div>
+                <div class="mt-3 text-sm font-bold hidden feedback-msg"></div>
+            </div>
+        </section>
+
+        <!-- MODULE 5: PUBLISHING -->
+        <section id="module5" class="material-card p-8 md:p-10 scroll-mt-24">
+            <div class="mb-8">
+                <span class="text-sm font-bold text-emerald-600 tracking-wider uppercase" data-my="Modul 5">Module 5</span>
+                <h3 class="text-3xl font-extrabold text-slate-900 mt-2 display-font" data-my="Penerbitan & Edaran Aplikasi">Publishing & Deployment</h3>
+            </div>
+
+            <div class="bg-slate-50 border-l-4 border-emerald-500 p-4 mb-8 rounded-r-lg">
+                <p class="text-sm font-semibold text-slate-800 mb-1" data-my="Objektif Modul:">Module Objective:</p>
+                <p class="text-sm text-slate-600" data-my="Membezakan kaedah pengedaran aplikasi Web (Replit) dan aplikasi Native (APK) kepada pengguna awam.">Differentiate the deployment methods of Web Apps (Replit) and Native Apps (APK) to the public.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <!-- Deployment 1: Replit -->
+                <div class="border border-slate-200 p-6 rounded-xl shadow-sm hover:border-orange-300 transition-colors flex flex-col">
+                    <h4 class="font-bold text-lg text-slate-800 mb-3"><i class="fas fa-globe text-orange-500 mr-2"></i> 1. Pautan Web (Replit)</h4>
+                    <p class="text-sm text-slate-600 mb-6 flex-grow" data-my="Sebagaimana di Modul 2, Replit terus menjana URL nyata (Live URL). Ini paling pantas dan pengguna tak perlu install apa-apa!">As in Module 2, Replit immediately generates a Live URL. This is the fastest way and users don't need to install anything!</p>
+                </div>
+
+                <!-- Deployment 2: Android Studio -->
+                <div class="border border-slate-200 p-6 rounded-xl shadow-sm hover:border-emerald-300 transition-colors flex flex-col">
+                    <h4 class="font-bold text-lg text-slate-800 mb-3"><i class="fab fa-android text-emerald-500 mr-2"></i> 2. Fail APK (Android Studio)</h4>
+                    <p class="text-sm text-slate-600 mb-6 flex-grow" data-my="Dalam perisian, klik <strong>'Generate Signed APK'</strong>. Fail ini boleh dikongsi di WhatsApp atau dimuat naik ke Play Store!">In the software, click <strong>'Generate Signed APK'</strong>. This file can be shared via WhatsApp or uploaded to Play Store!</p>
+                    <a href="https://www.youtube.com/results?search_query=how+to+generate+signed+apk+android+studio" target="_blank" class="text-blue-600 font-bold hover:underline text-sm flex items-center gap-2"><i class="fab fa-youtube text-red-500 text-lg"></i> Tonton Tutorial Generate APK</a>
+                </div>
+            </div>
+
+            <!-- Mini Quiz M5 -->
+            <div class="mt-12 bg-yellow-50/80 border-2 border-yellow-200 p-6 md:p-8 rounded-2xl shadow-sm">
+                <div class="flex justify-between items-start mb-4">
+                    <h4 class="font-bold text-yellow-800 flex items-center gap-2 text-lg" data-my="<i class='fas fa-lightbulb text-yellow-500 text-2xl'></i> Uji Kefahaman Modul 5"><i class="fas fa-lightbulb text-yellow-500 text-2xl"></i> Module 5 Knowledge Check</h4>
+                    <button onclick="resetQuiz(this, 'm5')" class="text-yellow-600 hover:text-yellow-800 transition" title="Reset Quiz"><i class="fas fa-redo text-lg"></i></button>
+                </div>
+                <p class="font-bold text-slate-800 mb-4" data-my="Apakah langkah akhir untuk membolehkan aplikasi Android Studio anda dikongsi secara bebas (APK)?">What is the final step to allow your Android Studio app to be shared freely (APK)?</p>
+                <div class="space-y-2">
+                    <button onclick="checkAnswer(this, false, 'Incorrect. Just running the emulator does not create a shareable file.', 'Salah. Sekadar membuka emulator tidak akan menghasilkan fail untuk dikongsi.', 'm5')" class="w-full text-left px-4 py-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 transition" data-my="A. Jalankan emulator (Run the emulator)">A. Run the emulator</button>
+                    <button onclick="checkAnswer(this, true, 'Correct! You must Generate a Signed APK to distribute your native app.', 'Tepat sekali! Anda perlu Menjana fail APK Bertauliah (Signed APK) untuk aplikasi native.', 'm5')" class="w-full text-left px-4 py-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 transition" data-my="B. Jana fail APK Bertauliah (Generate Signed APK)">B. Generate a Signed APK</button>
+                    <button onclick="checkAnswer(this, false, 'Incorrect. Replit creates Web URLs, not Android Studio APKs.', 'Salah. Menghantar pautan Replit adalah untuk Aplikasi Web.', 'm5')" class="w-full text-left px-4 py-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 transition" data-my="C. Hantar pautan Replit URL">C. Share the Replit URL</button>
+                </div>
+                <div class="mt-3 text-sm font-bold hidden feedback-msg"></div>
+            </div>
+        </section>
+
+        <!-- NEXT STEP: CUSTOM GEM -->
+        <section id="custom-gem" class="material-card p-8 md:p-10 scroll-mt-24 border-t-4 border-t-pink-500">
+            <div class="mb-8">
+                <span class="text-sm font-bold text-pink-600 tracking-wider uppercase" data-my="Langkah Seterusnya">Next Step</span>
+                <h3 class="text-3xl font-extrabold text-slate-900 mt-2 display-font" data-my="Jadikan Idea Anda Realiti">Turn Your Own Ideas Into Reality</h3>
+            </div>
+            <p class="text-slate-600 mb-6" data-my="Kini anda telah tamat kelima-lima modul! Anda mungkin terfikir, <em>'Macam mana nak tulis prompt B.A.S.I.C yang sempurna untuk idea aplikasi saya sendiri?'</em> Jangan risau. Ikuti langkah mudah di bawah:">
+                Now you have completed all five modules! You might be thinking, <em>"How do I write a perfect B.A.S.I.C prompt for my own app idea?"</em> Do not worry. Follow the simple steps below:
+            </p>
+
+            <div class="space-y-5 mb-8">
+                <div class="flex gap-4 items-start">
+                    <span class="bg-pink-600 text-white rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">1</span>
+                    <p class="text-sm text-slate-700 pt-1" data-my="Klik butang <strong>'Custom GEM AI'</strong> (ikon robot terapung) di penjuru bawah kanan skrin anda.">Click the <strong>'Custom GEM AI'</strong> button (floating robot icon) at the bottom right corner of your screen.</p>
+                </div>
+                <div class="flex gap-4 items-start">
+                    <span class="bg-pink-600 text-white rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">2</span>
+                    <div class="w-full">
+                        <p class="text-sm text-slate-700 mb-3 pt-1" data-my="Salin templat di bawah, <strong>isi idea anda</strong>, <strong>pilih platform</strong> (Replit, Expo, atau Android Studio), dan hantar mesej kepada GEM tersebut:">Copy the template below, <strong>fill in your idea</strong>, <strong>choose your platform</strong> (Replit, Expo, or Android Studio), and send the message to the GEM:</p>
+                        <div class="relative group">
+                            <div class="bg-pink-50 p-6 pt-14 rounded-2xl text-sm leading-relaxed border border-pink-200 text-pink-900 font-mono shadow-inner whitespace-pre-wrap">I want to build an app that [INSERT YOUR IDEA HERE - e.g., helps polytechnic students share extra food in their hostel].
+
+First, brainstorm the top 3 core features.
+Second, generate the exact B.A.S.I.C prompt I need to build this in [CHOOSE ONE: Replit / Expo React Native / Android Studio].</div>
+                            <button onclick="copyText(this)" class="absolute top-3 right-3 bg-pink-600 hover:bg-pink-700 text-white text-xs px-3 py-1.5 rounded font-medium transition shadow-sm">📋 Copy Idea Prompt</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-4 items-start">
+                    <span class="bg-pink-600 text-white rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">3</span>
+                    <p class="text-sm text-slate-700 pt-1" data-my="<strong>Magik!</strong> GEM tersebut akan bertindak sebagai Arkitek Sistem dan merangka arahan B.A.S.I.C yang sempurna. Salin arahan itu, tampal ke dalam platform pilihan anda (Replit Agent, Android Studio, atau tab Gemini baharu), dan biarkan AI mula mengekod!"><strong>Magic!</strong> The GEM will act as your System Architect and write the perfect B.A.S.I.C prompt. Copy that prompt, paste it into your chosen coding platform (Replit Agent, Android Studio, or a new Gemini chat), and let the AI generate your code!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Conclusion -->
+        <section class="bg-blue-700 text-white rounded-3xl p-10 md:p-14 text-center relative overflow-hidden shadow-xl">
+            <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
+            <div class="relative z-10">
+                <h3 class="text-3xl md:text-4xl font-extrabold mb-6 display-font" data-my="Kesimpulan">The Conclusion</h3>
+                <p class="text-lg md:text-xl text-blue-100 leading-relaxed max-w-3xl mx-auto mb-6" data-my="Inilah maksud <strong>'Vibe Coding'</strong>. Anda tak perlukan otak genius IT. Anda cuma perlu Jiwa bersih, kerangka (UX) penyelesai masalah umat, & tindakan memanfaatkan pembantu AI.">
+                    This is what I mean by <strong>"Vibe Coding"</strong>. You don't need to be a coding genius. You just need a pure soul (Jiwa), a UX framework to solve real problems for other people, and the action to guide your AI assistant. 
+                </p>
+                
+                <div class="inline-block bg-white text-blue-700 font-extrabold py-4 px-8 rounded-full shadow-lg text-lg">
+                    Go out there, turn your ideas into reality, and build apps with soul! 🚀
+                </div>
+            </div>
+        </section>
+
+        <!-- BONUS: Behind the Scenes -->
+        <section id="bonus" class="material-card p-8 md:p-10 scroll-mt-24 border-t-4 border-t-purple-500">
+            <div class="mb-8">
+                <span class="text-sm font-bold text-purple-600 tracking-wider uppercase" data-my="Bonus Eksklusif">Exclusive Bonus</span>
+                <h3 class="text-3xl font-extrabold text-slate-900 mt-2 display-font" data-my="Di Sebalik Tabir: Cara Modul Ini Dibina">Behind the Scenes: How This Module Was Built</h3>
+            </div>
+            
+            <p class="text-slate-600 mb-4 leading-relaxed" data-my="Tahukah anda? Keseluruhan laman web pembelajaran interaktif ini juga dibina menggunakan konsep <strong>Vibe Coding</strong> dan Google Gemini Canvas! Tiada satu pun pengekodan HTML manual ditaip dari sifar.">
+                Did you know? This entire interactive learning website was also built using the <strong>Vibe Coding</strong> concept and Google Gemini Canvas! Not a single line of manual HTML coding was typed from scratch.
+            </p>
+            <p class="text-slate-600 mb-8 leading-relaxed" data-my="Jika anda seorang pendidik atau pelajar yang ingin menghasilkan Bahan Pembelajaran Kendiri (SIM) interaktif seperti ini, ini adalah <strong>Master Prompt</strong> rahsia yang kami gunakan. Anda boleh menirunya untuk subjek anda sendiri:">
+                If you are an educator or student who wants to create an interactive Self-Instructional Material (SIM) like this, here is the secret <strong>Master Prompt</strong> we used. You can copy it to build a module for your own subject:
+            </p>
+
+            <div class="relative group mb-6">
+                <div class="bg-purple-50 p-6 pt-14 rounded-2xl text-sm leading-relaxed border border-purple-200 text-purple-900 font-mono shadow-inner whitespace-pre-wrap">Act as an expert Web Developer and Instructional Designer. I want to build a Self-Instructional Material (SIM) web module for my class.
+
+[B] Build a single-file HTML using Tailwind CSS.
+[A] It must have a modern, clean UI, a sticky navigation bar, learning modules, and an interactive knowledge-check quiz for each module. Include a language toggle (English/Malay).
+[S] Use inline Javascript for the quiz logic, progress bar, and language toggle. No backend needed.
+[I] Ensure the design is mobile-responsive, use vibrant colors, and include copy-to-clipboard buttons for any code snippets.</div>
+                <button onclick="copyText(this)" class="absolute top-3 right-3 bg-purple-600 hover:bg-purple-700 text-white text-xs px-3 py-1.5 rounded font-medium transition shadow-sm">📋 Copy Master Prompt</button>
+            </div>
+            
+            <div class="bg-purple-100 border-l-4 border-purple-600 p-6 rounded-r-xl mt-6 shadow-sm">
+                <p class="text-purple-900 font-medium md:text-lg text-base leading-relaxed" data-my="💡 <strong>Langkah Penting:</strong> Buka Google Gemini dan pastikan anda <strong>mengaktifkan butang 'Canvas'</strong> (ikon berhampiran kotak sembang) sebelum menampal prompt ini! Gemini akan menjana fail HTML lengkap yang anda boleh muat turun (download) dan terus terbitkan secara percuma menggunakan platform web seperti <strong>GitHub Pages</strong> atau <strong>Netlify</strong>.">
+                    💡 <strong>Crucial Step:</strong> Open Google Gemini and make sure to <strong>turn on the 'Canvas' button</strong> (the icon near the chat box) before pasting this prompt! Gemini will generate a complete HTML file that you can download and instantly publish for free using web platforms like <strong>GitHub Pages</strong> or <strong>Netlify</strong>.
+                </p>
+            </div>
+        </section>
+
+        <!-- Module Instructor & FAQ -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Instructor Profile -->
+            <div class="material-card p-8 lg:col-span-1 h-fit">
+                <h3 class="text-lg font-bold text-slate-800 mb-6 border-b pb-4" data-my="Tenaga Pengajar">Module Instructor</h3>
+                <div class="mb-4">
+                    <h4 class="font-bold text-slate-900 text-lg">Dr Nazatul Aini Abd Majid</h4>
+                    <p class="text-xs text-slate-500 font-bold uppercase mt-1">CAIT, FTSM, UKM</p>
+                </div>
+                <p class="text-sm text-slate-600 mb-4 leading-relaxed" data-my="Pensyarah di Pusat Teknologi Kecerdasan Buatan (CAIT), FTSM, UKM. Mengajar subjek Pengaturcaraan Aplikasi Mudah Alih, dengan tumpuan penyelidikan aktif dalam Realiti Terimbuh (AR) untuk Pendidikan, Perlombongan Data Pendidikan & Analitik Pembelajaran.">Lecturer at the Center for Artificial Intelligence Technology (CAIT), FTSM, UKM, currently teaching Mobile Application Programming, with active research in Augmented Reality for Education, Educational Data Mining & Learning Analytics.</p>
+                <a href="mailto:nazatulaini@ukm.edu.my" class="text-sm font-semibold text-blue-600 hover:underline"><i class="fas fa-envelope mr-1"></i> nazatulaini@ukm.edu.my</a>
+            </div>
+
+            <!-- FAQ -->
+            <div id="faq" class="material-card p-8 lg:col-span-2 scroll-mt-24">
+                <h3 class="text-xl font-bold text-slate-800 mb-6 border-b pb-4" data-my="Soalan Lazim (FAQ)">Frequently Asked Questions</h3>
+                <div class="space-y-4">
+                    <details class="group bg-slate-50 rounded-lg border border-slate-100">
+                        <summary class="font-bold text-slate-800 p-4 flex justify-between items-center hover:text-blue-600" data-my="Saya keliru. Nak mula guna Replit, Expo atau Android Studio?<i class='fas fa-chevron-down text-slate-400 group-open:rotate-180 transition-transform'></i>">
+                            I'm confused. Should I use Replit, Expo, or Android Studio?
+                            <i class="fas fa-chevron-down text-slate-400 group-open:rotate-180 transition-transform"></i>
+                        </summary>
+                        <div class="px-4 pb-4 text-sm text-slate-600" data-my="Guna <strong>Replit</strong> untuk web visual paling pantas. Guna <strong>Expo Snack</strong> untuk logik mobile sederhana. Guna <strong>Android Studio</strong> jika projek perlukan kamera atau Notifikasi Latar (Background).">
+                            Use <strong>Replit</strong> for the fastest visual web apps. Use <strong>Expo Snack</strong> for medium mobile logic. Use <strong>Android Studio</strong> if your project needs heavy hardware like cameras or background notifications.
+                        </div>
+                    </details>
+                    
+                    <details class="group bg-slate-50 rounded-lg border border-slate-100">
+                        <summary class="font-bold text-slate-800 p-4 flex justify-between items-center hover:text-blue-600" data-my="Android Studio buat laptop saya 'lag'. Apa perlu saya buat?<i class='fas fa-chevron-down text-slate-400 group-open:rotate-180 transition-transform'></i>">
+                            Android Studio makes my laptop lag. What should I do?
+                            <i class="fas fa-chevron-down text-slate-400 group-open:rotate-180 transition-transform"></i>
+                        </summary>
+                        <div class="px-4 pb-4 text-sm text-slate-600" data-my="Inilah sebabnya kita bina asas di <strong>Replit & Expo Snack</strong>! Buat prototaip di web sebab ia tak makan memori. Bila logik dah siap, pinjam PC makmal hanya untuk bina versi Android Studio.">
+                            If your laptop is struggling, do not force it. This is exactly why we use <strong>Replit & Expo Snack</strong>! Start your prototype on the web because it uses zero laptop memory. Once your logic is perfect, borrow a lab computer just to compile Android Studio.
+                        </div>
+                    </details>
+
+                    <details class="group bg-slate-50 rounded-lg border border-slate-100">
+                        <summary class="font-bold text-slate-800 p-4 flex justify-between items-center hover:text-blue-600" data-my="Kalau saya guna Gemini untuk Projek Tahun Akhir (FYP), adakah ianya meniru (cheating)?<i class='fas fa-chevron-down text-slate-400 group-open:rotate-180 transition-transform'></i>">
+                            If I use Gemini for my Final Year Project (FYP), is it cheating?
+                            <i class="fas fa-chevron-down text-slate-400 group-open:rotate-180 transition-transform"></i>
+                        </summary>
+                        <div class="px-4 pb-4 text-sm text-slate-600" data-my="Gunakan AI hanya untuk menjana draf pertama kod anda. Bagi pelajar pengkomputeran, anda perlu mengubah suai (customize) kod tersebut menggunakan bahasa pengaturcaraan anda sendiri. Bagi pelajar kursus lain, sila rujuk pensyarah anda untuk garis panduan yang dibenarkan.">
+                            Using AI is not cheating if you use it to generate the first draft of your code. For computing students, you must customize the code yourself using the programming language. For non-computing students, please refer to your lecturer for the allowed guidelines. 
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-8 text-center text-slate-500 text-sm mb-16 md:mb-0">
+        <div class="max-w-6xl mx-auto px-6">
+            <p>&copy; 2026 Center of Artificial Intelligence Technology (CAIT) | Universiti Kebangsaan Malaysia</p>
+            <p class="mt-2 text-xs opacity-75">Self-Instructional Material designed for Open and Distance Learning.</p>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast"><i class="fas fa-check-circle mr-2"></i> Prompt Copied!</div>
+
+    <script>
+        // Scroll Spy Logic (Highlight Nav Links on Scroll)
+        const sections = document.querySelectorAll("section[id]");
+        const navLinks = document.querySelectorAll(".nav-link");
+
+        window.addEventListener("scroll", () => {
+            let current = "";
+            const scrollY = window.pageYOffset;
+
+            sections.forEach((section) => {
+                const sectionHeight = section.offsetHeight;
+                const sectionTop = section.offsetTop - 150; // Adjust offset for sticky header
+
+                if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+                    current = section.getAttribute("id");
+                }
+            });
+
+            navLinks.forEach((link) => {
+                link.classList.remove("bg-blue-100", "text-blue-800");
+                link.classList.add("text-slate-600", "hover:bg-slate-100");
+                if (link.getAttribute("href") === "#" + current) {
+                    link.classList.remove("text-slate-600", "hover:bg-slate-100");
+                    link.classList.add("bg-blue-100", "text-blue-800");
+                }
+            });
+        });
+
+        // Module Progress State (Now with 5 modules)
+        let moduleProgress = { m1: false, m2: false, m3: false, m4: false, m5: false };
+
+        function updateProgressBar() {
+            const totalModules = 5;
+            const completedModules = Object.values(moduleProgress).filter(v => v === true).length;
+            const progressPercentage = (completedModules / totalModules) * 100;
+            document.getElementById("progressBar").style.width = progressPercentage + "%";
+        }
+
+        // Language Toggle Logic
+        let currentLang = 'en';
+        
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'my' : 'en';
+            
+            // Find all elements with a Malay translation tag
+            document.querySelectorAll('[data-my]').forEach(el => {
+                if (!el.hasAttribute('data-en')) {
+                    // Store original English HTML the first time
+                    el.setAttribute('data-en', el.innerHTML); 
+                }
+                // Swap HTML content based on language
+                el.innerHTML = currentLang === 'my' ? el.getAttribute('data-my') : el.getAttribute('data-en');
+            });
+            
+            // Update the Toggle Button UI
+            const langBtn = document.getElementById('langText');
+            if (currentLang === 'my') {
+                langBtn.innerText = 'EN';
+            } else {
+                langBtn.innerText = 'BM';
+            }
+
+            // Update visible quiz feedbacks based on language
+            document.querySelectorAll('.feedback-msg:not(.hidden)').forEach(msg => {
+                const btn = msg.parentElement.querySelector('button.bg-green-100, button.bg-red-100');
+                if (btn) {
+                    const textEn = btn.getAttribute('data-feedback-en');
+                    const textMy = btn.getAttribute('data-feedback-my');
+                    msg.innerText = currentLang === 'my' ? textMy : textEn;
+                }
+            });
+        }
+
+        // Quiz State Logic
+        function checkAnswer(button, isCorrect, feedbackEn, feedbackMy, quizId = null) {
+            const container = button.parentElement;
+            const feedbackMsg = container.nextElementSibling;
+            
+            // Reset all buttons in this question
+            const buttons = container.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-green-100', 'border-green-500', 'bg-red-100', 'border-red-500');
+                btn.classList.add('bg-white', 'border-slate-300');
+            });
+
+            // Set current button state
+            if (isCorrect) {
+                button.classList.remove('bg-white', 'border-slate-300');
+                button.classList.add('bg-green-100', 'border-green-500');
+                feedbackMsg.className = "mt-3 text-sm font-bold text-green-600 feedback-msg";
+                
+                // Update progress bar if a quiz is answered correctly
+                if (quizId && !moduleProgress[quizId]) {
+                    moduleProgress[quizId] = true;
+                    updateProgressBar();
+                }
+            } else {
+                button.classList.remove('bg-white', 'border-slate-300');
+                button.classList.add('bg-red-100', 'border-red-500');
+                feedbackMsg.className = "mt-3 text-sm font-bold text-red-600 feedback-msg";
+            }
+            
+            // Store feedback texts for language toggling
+            button.setAttribute('data-feedback-en', feedbackEn);
+            button.setAttribute('data-feedback-my', feedbackMy);
+
+            // Display feedback
+            feedbackMsg.innerText = currentLang === 'my' ? feedbackMy : feedbackEn;
+            feedbackMsg.classList.remove('hidden');
+        }
+
+        // Reset Quiz Logic
+        function resetQuiz(btnElement, quizId) {
+            const container = btnElement.closest('.bg-yellow-50\\/80'); 
+            const buttons = container.querySelectorAll('.space-y-2 button');
+            const feedbackMsg = container.querySelector('.feedback-msg');
+
+            // Reset buttons UI
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-green-100', 'border-green-500', 'bg-red-100', 'border-red-500');
+                btn.classList.add('bg-white', 'border-slate-300');
+            });
+
+            // Hide feedback
+            feedbackMsg.classList.add('hidden');
+
+            // Reset progress
+            if (moduleProgress[quizId]) {
+                moduleProgress[quizId] = false;
+                updateProgressBar();
+            }
+        }
+
+        // Copy to clipboard logic
+        function copyText(buttonElement) {
+            const parent = buttonElement.parentElement;
+            const textToCopy = parent.querySelector('div').innerText;
+
+            let textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            textArea.style.position = "fixed"; 
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast();
+            } catch (err) {
+                console.error('Copy failed', err);
+            }
+            
+            document.body.removeChild(textArea);
+            
+            const originalText = buttonElement.innerHTML;
+            buttonElement.innerHTML = `✅ Copied`;
+            buttonElement.classList.add('bg-blue-600');
+            buttonElement.classList.remove('bg-slate-700');
+            
+            setTimeout(() => {
+                buttonElement.innerHTML = originalText;
+                buttonElement.classList.remove('bg-blue-600');
+                buttonElement.classList.add('bg-slate-700');
+            }, 2000);
+        }
+
+        function showToast() {
+            const toast = document.getElementById("toast");
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+    </script>
+</body>
+</html>
